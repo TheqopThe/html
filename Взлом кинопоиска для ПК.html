@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Изменение ссылки</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 50px;
+background-image: url('https://i.imgur.com/8tGn4Y7.jpeg'); /* Замените URL_ИЗОБРАЖЕНИЯ на URL вашей картинки */
+background-size: cover;
+background-repeat: no-repeat;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+h1 {
+color: #333;
+margin-bottom: 20px;
+}
+
+#urlInput {
+width: 80%;
+padding: 15px;
+margin-bottom: 20px;
+border: 2px solid #ccc;
+border-radius: 5px;
+font-size: 16px;
+}
+
+#enterButton {
+padding: 12px 24px;
+background-color: #007BFF;
+color: white;
+border: none;
+border-radius: 5px;
+font-size: 16px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+#enterButton:hover {
+background-color: #0056b3;
+}
+
+.buttonContainer {
+margin-top: 20px;
+}
+
+.buttonContainer button {
+padding: 10px 20px;
+margin: 5px;
+font-size: 16px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+#tutorialButton {
+background-color: #28a745;
+color: white;
+border: none;
+border-radius: 5px;
+}
+
+#tutorialButton:hover {
+background-color: #218838;
+}
+
+#kinopoiskButton {
+background-color: #17a2b8;
+color: white;
+border: none;
+border-radius: 5px;
+}
+
+#kinopoiskButton:hover {
+background-color: #138496;
+}
+
+#tutorialModal {
+display: none;
+position: fixed;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+align-items: center;
+justify-content: center;
+}
+
+#tutorialContent {
+background-color: white;
+padding: 20px;
+border-radius: 5px;
+max-width: 500px;
+text-align: left;
+}
+</style>
+</head>
+<body>
+<h1>Изменение ссылки</h1>
+<input type="text" id="urlInput" placeholder="Введите ссылку">
+<button id="enterButton">Enter</button>
+
+<div class="buttonContainer">
+<button id="tutorialButton">Туториал</button>
+<button id="kinopoiskButton" onclick="window.open('https://www.kinopoisk.ru', '_blank')">Зайти на КиноПоиск</button>
+</div>
+<div id="tutorialModal">
+<div id="tutorialContent">
+<h2>Туториал</h2>
+<ol>
+<li>Заходите на сайт Кинопоиска и ищите какой-нибудь фильм.</li>
+<li>Копируйте ссылку фильма и вставляйте в строку сайта.</li>
+<li>И Всё можно смотреть.</li>
+</ol>
+<button onclick="closeModal()">Закрыть</button>
+</div>
+</div>
+
+<script>
+document.getElementById('enterButton').addEventListener('click', function() {
+var inputUrl = document.getElementById('urlInput').value;
+if (inputUrl) {
+var newUrl = inputUrl.replace('https://www.kinopoisk.ru', 'https://www.sspoisk.ru');
+window.open(newUrl, '_blank');
+} else {
+alert('Пожалуйста, введите ссылку.');
+}
+});
+
+document.getElementById('tutorialButton').addEventListener('click', function() {
+document.getElementById('tutorialModal').style.display = 'flex';
+});
+
+function closeModal() {
+document.getElementById('tutorialModal').style.display = 'none';
+}
+</script>
+</body>
+</html>
