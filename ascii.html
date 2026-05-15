@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>IMG2ASCII</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
+
+:root{
+    --bg:#0d0f0d;
+    --surface:#161c16;
+    --surface2:#1c241c;
+    --border:#2a3d2a;
+    --border-bright:#3d5c3d;
+    --accent:#4dff7c;
+    --accent-dim:#4dff7c55;
+    --accent-dark:#1a5c2e;
+    --text:#e8f5e8;
+    --text-sub:#a0c8a0;
+    --text-muted:#6a9a6a;
+    --input-bg:#111811;
+    --danger:#ff6b6b;
+    --warn:#ffcc44;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Share Tech Mono',monospace;
+    min-height:100vh;
+    padding:20px 24px 48px;
+    max-width:700px;
+    margin:0 auto;
+}
+
+h1{
+    font-family:'Orbitron',monospace;
+    font-size:1rem;
+    font-weight:700;
+    letter-spacing:0.2em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+h1 .dot{
+    width:10px;height:10px;
+    background:var(--accent);
+    border-radius:50%;
+    box-shadow:0 0 12px var(--accent);
+    flex-shrink:0;
+}
+
+.panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:16px;
+    margin-bottom:12px;
+}
+.panel-title{
+    font-size:0.75rem;
+    font-weight:700;
+    color:var(--text-sub);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+.field{display:flex;flex-direction:column;gap:5px;}
+.field > label{
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--text-sub);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+}
+.field-hint{
+    font-size:0.67rem;
+    color:var(--text-muted);
+    margin-top:2px;
+    line-height:1.45;
+}
+
+input[type="number"], input[type="text"]{
+    background:var(--input-bg);
+    border:1px solid var(--border-bright);
+    color:var(--accent);
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.92rem;
+    padding:9px 10px;
+    border-radius:4px;
+    outline:none;
+    width:100%;
+    transition:border-color 0.15s,box-shadow 0.15s;
+}
+input[type="number"]:focus, input[type="text"]:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px var(--accent-dim);
+}
+
+.range-row{display:flex;align-items:center;gap:10px;}
+.range-row input[type="range"]{flex:1;}
+input[type="range"]{
+    -webkit-appearance:none;
+    height:6px;
+    background:var(--surface2);
+    border:1px solid var(--border-bright);
+    border-radius:3px;
+    outline:none;
+    cursor:pointer;
+    accent-color:var(--accent);
+}
+input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:18px;height:18px;
+    background:var(--accent);
+    border-radius:50%;
+    box-shadow:0 0 6px var(--accent);
+    cursor:pointer;
+}
+.range-val{
+    font-size:0.9rem;
+    font-weight:700;
+    color:var(--accent);
+    min-width:36px;
+    text-align:right;
+}
+
+/* ── Переключатель способов загрузки ── */
+.upload-tabs{
+    display:flex;
+    gap:5px;
+    margin-bottom:12px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:8px;
+}
+.upload-tab{
+    background:transparent;
+    border:1px solid var(--border-bright);
+    color:var(--text-sub);
+    padding:6px 12px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.75rem;
+    cursor:pointer;
+    border-radius:4px;
+    transition:all 0.15s;
+}
+.upload-tab:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+}
+.upload-tab.active{
+    background:var(--accent-dark);
+    color:var(--accent);
+    border-color:var(--accent);
+}
+.upload-content-box{
+    display:none;
+}
+.upload-content-box.active{
+    display:block;
+}
+
+/* ── Radio option cards ── */
+.radio-group{display:flex;flex-direction:column;gap:7px;}
+
+.radio-card{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    cursor:pointer;
+    padding:10px 12px;
+    border:1px solid var(--border-bright);
+    border-radius:5px;
+    transition:border-color 0.15s,background 0.15s;
+}
+.radio-card:hover{border-color:var(--accent);background:var(--surface2);}
+.radio-card input[type="radio"]{
+    accent-color:var(--accent);
+    width:16px;height:16px;
+    cursor:pointer;
+    flex-shrink:0;
+    margin-top:3px;
+}
+.radio-card .rc-text{display:flex;flex-direction:column;}
+.radio-card .rc-name{
+    font-size:0.83rem;
+    font-weight:700;
+    color:var(--text);
+    line-height:1.2;
+}
+.radio-card .rc-sample{
+    font-size:0.76rem;
+    color:var(--accent);
+    margin-top:3px;
+    font-family:'Share Tech Mono',monospace;
+    letter-spacing:0.04em;
+}
+.radio-card .rc-desc{
+    font-size:0.66rem;
+    color:var(--text-muted);
+    margin-top:3px;
+    line-height:1.4;
+}
+.radio-card:has(input:checked){border-color:var(--accent);background:#1a2e1a;}
+
+/* ── Inline radio group ── */
+.radio-row{display:flex;flex-direction:column;gap:7px;}
+.radio-inline-card{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    cursor:pointer;
+    padding:9px 12px;
+    border:1px solid var(--border-bright);
+    border-radius:5px;
+    transition:border-color 0.15s,background 0.15s;
+}
+.radio-inline-card:hover{border-color:var(--accent);background:var(--surface2);}
+.radio-inline-card input[type="radio"]{
+    accent-color:var(--accent);
+    width:15px;height:15px;
+    cursor:pointer;
+    flex-shrink:0;
+    margin-top:3px;
+}
+.radio-inline-card .ric-text{display:flex;flex-direction:column;}
+.radio-inline-card .ric-name{
+    font-size:0.82rem;
+    font-weight:700;
+    color:var(--text);
+}
+.radio-inline-card .ric-desc{
+    font-size:0.65rem;
+    color:var(--text-muted);
+    margin-top:3px;
+    line-height:1.38;
+}
+.radio-inline-card:has(input:checked){border-color:var(--accent);background:#1a2e1a;}
+
+/* ── Upload ── */
+.upload-zone{
+    border:2px dashed var(--border-bright);
+    border-radius:5px;
+    padding:20px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color 0.2s,background 0.2s;
+    position:relative;
+    overflow:hidden;
+}
+.upload-zone:hover{border-color:var(--accent);background:var(--surface2);}
+.upload-zone input[type="file"]{
+    position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-icon{font-size:1.8rem;line-height:1;margin-bottom:6px;}
+.upload-text{font-size:0.82rem;font-weight:700;color:var(--text-sub);letter-spacing:0.06em;}
+.upload-sub{font-size:0.68rem;color:var(--text-muted);margin-top:4px;}
+.file-name{font-size:0.8rem;color:var(--accent);margin-top:8px;display:none;font-weight:700;}
+
+#preview-wrap{display:none;margin-top:12px;text-align:center;}
+#preview-wrap img{max-height:140px;max-width:100%;border:1px solid var(--border-bright);border-radius:4px;}
+#preview-size{font-size:0.68rem;color:var(--text-muted);margin-top:5px;}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:10px;margin-bottom:0;}
+
+#convert{
+    flex:1;
+    padding:13px;
+    background:var(--accent-dark);
+    border:1px solid var(--accent);
+    color:var(--accent);
+    font-family:'Orbitron',monospace;
+    font-size:0.84rem;
+    font-weight:700;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    cursor:pointer;
+    border-radius:5px;
+    transition:background 0.15s,box-shadow 0.15s;
+}
+#convert:hover{background:#22642e;box-shadow:0 0 18px #4dff7c30;}
+#convert:active{background:#1a5c2e;}
+
+#copy-btn{
+    padding:13px 20px;
+    background:var(--surface2);
+    border:1px solid var(--border-bright);
+    color:var(--text-sub);
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.84rem;
+    font-weight:700;
+    letter-spacing:0.08em;
+    cursor:pointer;
+    border-radius:5px;
+    transition:background 0.15s,border-color 0.15s,color 0.15s;
+    white-space:nowrap;
+}
+#copy-btn:hover{border-color:var(--accent);color:var(--accent);background:#1a2e1a;}
+#copy-btn.copied{border-color:var(--accent);color:var(--accent);background:#1a3d1a;}
+
+.status{
+    font-size:0.71rem;
+    color:var(--text-muted);
+    letter-spacing:0.06em;
+    margin-top:9px;
+    min-height:1.1em;
+}
+.status.ok{color:var(--accent);}
+.status.err{color:var(--danger);}
+.status.warn{color:var(--warn);}
+
+.output-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:14px 0 6px;
+}
+.output-label{
+    font-size:0.72rem;font-weight:700;color:var(--text-sub);
+    letter-spacing:0.12em;text-transform:uppercase;
+}
+
+#output{
+    width:100%;height:460px;
+    background:#090e09;
+    color:#6dff9a;
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.76rem;
+    white-space:pre;
+    border:1px solid var(--border-bright);
+    border-radius:5px;
+    padding:12px;
+    resize:vertical;
+    outline:none;
+    overflow:auto;
+    line-height:1.25;
+}
+#output:focus{border-color:var(--accent);}
+
+.section-note{
+    font-size:0.66rem;font-weight:700;
+    color:var(--text-muted);letter-spacing:0.1em;
+    text-transform:uppercase;margin:0 0 8px;
+}
+</style>
+</head>
+<body>
+
+<h1><span class="dot"></span>Minecraft ASCII</h1>
+
+<!-- 1: Загрузка -->
+<div class="panel">
+    <div class="panel-title">1 — Загрузить изображение</div>
+    
+    <!-- Переключатель вкладок -->
+    <div class="upload-tabs">
+        <button class="upload-tab active" data-target="box-file">📁 Файл</button>
+        <button class="upload-tab" data-target="box-url">🔗 Ссылка (URL)</button>
+    </div>
+
+    <!-- Контент: Файл -->
+    <div class="upload-content-box active" id="box-file">
+        <div class="upload-zone">
+            <input type="file" id="file" accept="image/*">
+            <div class="upload-icon">🖼</div>
+            <div class="upload-text">Нажмите или перетащите файл сюда</div>
+            <div class="upload-sub">PNG, JPG, GIF, WEBP</div>
+            <div class="file-name" id="file-name"></div>
+        </div>
+    </div>
+
+    <!-- Контент: Ссылка -->
+    <div class="upload-content-box" id="box-url">
+        <div class="field">
+            <label for="url-input">Ссылка на изображение</label>
+            <input type="text" id="url-input" placeholder="https://example.com/image.png">
+            <div class="field-hint">Вставьте прямую ссылку на картинку. Внимание: некоторые сайты могут блокировать загрузку (CORS).</div>
+        </div>
+    </div>
+
+    <!-- Общий предпросмотр -->
+    <div id="preview-wrap">
+        <img id="preview-img" alt="предпросмотр">
+        <div id="preview-size"></div>
+    </div>
+</div>
+
+<!-- 2: Размер -->
+<div class="panel">
+    <div class="panel-title">2 — Изменить размер перед конвертацией</div>
+    <div class="grid2">
+        <div class="field">
+            <label for="dim-w">Ширина (пикселей)</label>
+            <input type="number" id="dim-w" value="" min="1" placeholder="авто">
+        </div>
+        <div class="field">
+            <label for="dim-h">Высота (пикселей)</label>
+            <input type="number" id="dim-h" value="" min="1" placeholder="авто">
+        </div>
+    </div>
+    <div class="field-hint" style="margin-top:9px;">
+        Заполняется автоматически при загрузке. Измените значения, чтобы масштабировать изображение до конвертации.
+    </div>
+</div>
+
+<!-- 3: Режим символов -->
+<div class="panel">
+    <div class="panel-title">3 — Стиль символов</div>
+    <div class="radio-group">
+
+        <label class="radio-card">
+            <input type="radio" name="charmode" value="braille" checked>
+            <span class="rc-text">
+                <span class="rc-name">Braille ASCII <span style="font-size:0.63rem;color:var(--text-muted);font-weight:400;">— по умолчанию, максимальная детализация</span></span>
+                <span class="rc-sample">⠿⠾⠽⠼⠻⠺⠹⠸⠷⠶⠵⠴</span>
+                <span class="rc-desc">Использует символы Юникода (⠀–⣿). Каждый символ содержит 8 суб-пикселей в сетке 2×4. Лучший вариант для табличек и книг в Minecraft.</span>
+            </span>
+        </label>
+
+        <label class="radio-card">
+            <input type="radio" name="charmode" value="IO">
+            <span class="rc-text">
+                <span class="rc-name">IO ASCII</span>
+                <span class="rc-sample">I O O I I O I O O</span>
+                <span class="rc-desc"><strong style="color:var(--accent)">I</strong> = тёмный пиксель, <strong style="color:var(--accent)">O</strong> = светлый пиксель. Простой и выразительный стиль.</span>
+            </span>
+        </label>
+
+        <label class="radio-card">
+            <input type="radio" name="charmode" value="O_only">
+            <span class="rc-text">
+                <span class="rc-name">O ASCII</span>
+                <span class="rc-sample">O O O O O O O O O</span>
+                <span class="rc-desc">Каждый пиксель — символ <strong style="color:var(--accent)">O</strong>. Вся картинка передаётся цветовыми кодами.</span>
+            </span>
+        </label>
+
+        <label class="radio-card">
+            <input type="radio" name="charmode" value="I_only">
+            <span class="rc-text">
+                <span class="rc-name">I ASCII</span>
+                <span class="rc-sample">I I I I I I I I I</span>
+                <span class="rc-desc">Каждый пиксель — символ <strong style="color:var(--accent)">I</strong>. Вся картинка передаётся цветовыми кодами.</span>
+            </span>
+        </label>
+
+    </div>
+</div>
+
+<!-- 4: Параметры -->
+<div class="panel">
+    <div class="panel-title">4 — Параметры</div>
+    <div class="grid3" style="margin-bottom:16px;">
+        <div class="field">
+            <label for="quality">Качество</label>
+            <input type="number" id="quality" value="5" min="1" max="256">
+            <div class="field-hint">Выше = больше символов, дольше конвертация.</div>
+        </div>
+        <div class="field">
+            <label for="horiz-gap">Зазор по горизонтали</label>
+            <input type="number" id="horiz-gap" value="2" min="0" max="20">
+            <div class="field-hint">Пустые строки пикселей между рядами символов.</div>
+        </div>
+        <div class="field">
+            <label for="vert-gap">Зазор по вертикали</label>
+            <input type="number" id="vert-gap" value="1" min="0" max="20">
+            <div class="field-hint">Пустые колонки пикселей между символами.</div>
+        </div>
+    </div>
+    <div class="field">
+        <label for="threshold">Порог яркости (тёмный / светлый)</label>
+        <div class="range-row">
+            <input type="range" id="threshold" min="0" max="255" value="127">
+            <span class="range-val" id="thresholdValue">127</span>
+        </div>
+        <div class="field-hint">Ниже = меньше светлых пикселей (темнее). Выше = больше светлых пикселей (светлее). 127 — середина.</div>
+    </div>
+</div>
+
+<!-- 5: Цвет -->
+<div class="panel">
+    <div class="panel-title">5 — Цветовые коды</div>
+    <div class="radio-row">
+
+        <label class="radio-inline-card">
+            <input type="radio" name="colormode" value="none">
+            <span class="ric-text">
+                <span class="ric-name">Без цвета</span>
+                <span class="ric-desc">Только символы, без каких-либо цветовых кодов.</span>
+            </span>
+        </label>
+
+        <label class="radio-inline-card">
+            <input type="radio" name="colormode" value="new" checked>
+            <span class="ric-text">
+                <span class="ric-name">Новые цвета <span style="font-size:0.63rem;color:var(--text-muted);font-weight:400;">Minecraft 1.16+</span></span>
+                <span class="ric-desc">Полный RGB через коды §x — 16 миллионов цветов. Работает только начиная с версии 1.16.</span>
+            </span>
+        </label>
+
+        <label class="radio-inline-card">
+            <input type="radio" name="colormode" value="legacy">
+            <span class="ric-text">
+                <span class="ric-name">Устаревшие цвета <span style="font-size:0.63rem;color:var(--text-muted);font-weight:400;">Minecraft 1.15.2 и ниже</span></span>
+                <span class="ric-desc">16 фиксированных цветов (§0–§f). Для старых версий Minecraft.</span>
+            </span>
+        </label>
+
+    </div>
+</div>
+
+<!-- 6: Дизеринг -->
+<div class="panel">
+    <div class="panel-title">6 — Дизеринг (сглаживание градиентов)</div>
+    <div class="radio-row">
+
+        <label class="radio-inline-card">
+            <input type="radio" name="dithermode" value="none">
+            <span class="ric-text">
+                <span class="ric-name">Без дизеринга</span>
+                <span class="ric-desc">Простое пороговое преобразование. Могут появляться полосы на градиентах.</span>
+            </span>
+        </label>
+
+        <label class="radio-inline-card">
+            <input type="radio" name="dithermode" value="atkinson" checked>
+            <span class="ric-text">
+                <span class="ric-name">Дизеринг Аткинсона ✓</span>
+                <span class="ric-desc">Плавное рассеивание ошибок. Лучший вариант для большинства изображений. Включён по умолчанию.</span>
+            </span>
+        </label>
+
+        <label class="radio-inline-card">
+            <input type="radio" name="dithermode" value="ordered">
+            <span class="ric-text">
+                <span class="ric-name">Упорядоченный дизеринг</span>
+                <span class="ric-desc">Матрица Байера. Создаёт ретро-эффект в виде сетки точек.</span>
+            </span>
+        </label>
+
+    </div>
+</div>
+
+<!-- Кнопки -->
+<div class="btn-row">
+    <button id="convert">▶ Конвертировать</button>
+    <button id="copy-btn">⎘ Копировать</button>
+</div>
+<div class="status" id="status">Готово — загрузите изображение и нажмите «Конвертировать».</div>
+
+<!-- Вывод -->
+<div class="output-header">
+    <span class="output-label">Результат</span>
+</div>
+<textarea id="output" readonly placeholder="Результат появится здесь после конвертации..."></textarea>
+
+<script>
+const DOT_TO_HEX = [0x1,0x8,0x2,0x10,0x4,0x20,0x40,0x80];
+
+const ORDERED_MATRIX = [
+    0,128,192,64,
+    48,176,240,112,
+    32,160,224,96,
+    16,144,208,80
+];
+
+const R_SCALE = 0.2126;
+const G_SCALE = 0.7152;
+const B_SCALE = 0.0722;
+const CHAR_ASPECT_RATIO = 0.5;
+
+const MC_COLORS = {
+    "0":[0,0,0], "1":[0,0,170], "2":[0,170,0], "3":[0,170,170],
+    "4":[170,0,0], "5":[170,0,170], "6":[255,170,0], "7":[170,170,170],
+    "8":[85,85,85], "9":[85,85,255], "a":[85,255,85], "b":[85,255,255],
+    "c":[255,85,85], "d":[255,85,255], "e":[255,255,85], "f":[255,255,255]
+};
+
+const thresholdSlider = document.getElementById("threshold");
+const thresholdDisplay = document.getElementById("thresholdValue");
+const fileInput = document.getElementById("file");
+const urlInput = document.getElementById("url-input");
+const fileNameEl = document.getElementById("file-name");
+const previewWrap = document.getElementById("preview-wrap");
+const previewImg = document.getElementById("preview-img");
+const previewSize = document.getElementById("preview-size");
+const dimW = document.getElementById("dim-w");
+const dimH = document.getElementById("dim-h");
+const statusEl = document.getElementById("status");
+const outputEl = document.getElementById("output");
+const copyBtn = document.getElementById("copy-btn");
+
+let naturalW = 0, naturalH = 0;
+let currentSourceType = "file"; // "file" или "url"
+let loadedImageObject = null; // Храним загруженный объект Image
+
+thresholdSlider.oninput = () => { thresholdDisplay.textContent = thresholdSlider.value; };
+
+// Логика переключения вкладок
+document.querySelectorAll(".upload-tab").forEach(tab => {
+    tab.onclick = () => {
+        document.querySelectorAll(".upload-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".upload-content-box").forEach(b => b.classList.remove("active"));
+        
+        tab.classList.add("active");
+        const targetBox = document.getElementById(tab.dataset.target);
+        targetBox.classList.add("active");
+        
+        currentSourceType = tab.dataset.target === "box-file" ? "file" : "url";
+        resetPreview();
+    };
+});
+
+function resetPreview() {
+    loadedImageObject = null;
+    previewWrap.style.display = "none";
+    previewImg.src = "";
+    dimW.value = "";
+    dimH.value = "";
+    setStatus("Метод изменен. Ожидание изображения...", "");
+}
+
+// Загрузка через Файл
+fileInput.onchange = () => {
+    const f = fileInput.files[0];
+    if(!f) return;
+    fileNameEl.textContent = "📄 " + f.name;
+    fileNameEl.style.display = "block";
+    const url = URL.createObjectURL(f);
+    loadImage(url, false);
+};
+
+// Загрузка через Ссылку
+urlInput.oninput = () => {
+    const url = urlInput.value.trim();
+    if(!url) {
+        resetPreview();
+        return;
+    }
+    setStatus("Загрузка изображения по ссылке...", "warn");
+    loadImage(url, true);
+};
+
+function loadImage(src, isExternalUrl) {
+    const img = new Image();
+    if (isExternalUrl) {
+        img.crossOrigin = "Anonymous"; // Пытаемся обойти CORS для обработки пикселей в canvas
+    }
+    img.onload = () => {
+        naturalW = img.naturalWidth;
+        naturalH = img.naturalHeight;
+        dimW.value = naturalW;
+        dimH.value = naturalH;
+        previewImg.src = src;
+        previewSize.textContent = "Оригинал: " + naturalW + " × " + naturalH + " пкс";
+        previewWrap.style.display = "block";
+        loadedImageObject = img;
+        setStatus("Изображение загружено (" + naturalW + "×" + naturalH + " пкс). Нажмите «Конвертировать».", "ok");
+    };
+    img.onerror = () => {
+        loadedImageObject = null;
+        previewWrap.style.display = "none";
+        if (isExternalUrl) {
+            setStatus("Ошибка загрузки. Проверьте ссылку или сайт блокирует доступ (CORS).", "err");
+        } else {
+            setStatus("Ошибка при чтении файла.", "err");
+        }
+    };
+    img.src = src;
+}
+
+function setStatus(msg, type=""){
+    statusEl.textContent = msg;
+    statusEl.className = "status " + type;
+}
+
+function rgbToMinecraftHex(r,g,b){
+    const hex = r.toString(16).padStart(2,"0") +
+                g.toString(16).padStart(2,"0") +
+                b.toString(16).padStart(2,"0");
+    return "§x" + hex.toUpperCase().split("").map(c=>"§"+c).join("");
+}
+
+function nearestLegacyColor(r,g,b){
+    let best="f", bestDist=Infinity;
+    for(const code in MC_COLORS){
+        const [cr,cg,cb]=MC_COLORS[code];
+        const d=(r-cr)**2+(g-cg)**2+(b-cb)**2;
+        if(d<bestDist){bestDist=d;best=code;}
+    }
+    return "§"+best;
+}
+
+function atkinson(graymap,width,height,threshold){
+    const local=[...graymap];
+    for(let y=0;y<height;y++){
+        for(let x=0;x<width;x++){
+            const pos=y*width+x;
+            const old=local[pos];
+            const nw=old>threshold?255:0;
+            const error=(old-nw)/8;
+            local[pos]=nw;
+            for(const [dx,dy] of [[1,0],[2,0],[-1,1],[0,1],[1,1],[0,2]]){
+                const nx=x+dx,ny=y+dy;
+                if(nx>=0&&ny>=0&&nx<width&&ny<height)
+                    local[ny*width+nx]+=error;
+            }
+        }
+    }
+    return local;
+}
+
+function simpleChar(mode,isOn){
+    if(mode==="IO")     return isOn?"O":"I";
+    if(mode==="O_only") return "O";
+    if(mode==="I_only") return "I";
+    return " ";
+}
+
+document.getElementById("convert").onclick = () => {
+    if(!loadedImageObject){ 
+        setStatus(currentSourceType === "file" ? "Изображение не выбрано. Сначала загрузите файл." : "Укажите корректную ссылку на изображение.", "err"); 
+        return; 
+    }
+
+    const quality    = parseInt(document.getElementById("quality").value) || 5;
+    const threshold  = parseInt(thresholdSlider.value);
+    const horizGap   = parseInt(document.getElementById("horiz-gap").value) || 0;
+    const vertGap    = parseInt(document.getElementById("vert-gap").value) || 0;
+    const charMode   = document.querySelector('input[name="charmode"]:checked').value;
+    const colorMode  = document.querySelector('input[name="colormode"]:checked').value;
+    const ditherMode = document.querySelector('input[name="dithermode"]:checked').value;
+
+    const useColors  = colorMode !== "none";
+    const useLegacy  = colorMode === "legacy";
+    const useAtkinson= ditherMode === "atkinson";
+    const useOrdered = ditherMode === "ordered";
+
+    const targetImgW = parseInt(dimW.value) || naturalW;
+    const targetImgH = parseInt(dimH.value) || naturalH;
+
+    setStatus("Конвертация — пожалуйста, подождите...", "warn");
+
+    // Обертка в setTimeout, чтобы интерфейс успел обновиться перед тяжелыми вычислениями
+    setTimeout(() => {
+        try {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            let cellHeight=0,cellWidth,cellRows,cellCols;
+            do{
+                cellHeight++;
+                cellWidth  = cellHeight * CHAR_ASPECT_RATIO;
+                cellRows   = Math.ceil(targetImgH / cellHeight);
+                cellCols   = Math.ceil(targetImgW / cellWidth);
+            }while((cellCols+1)*cellRows > quality*1000);
+
+            const isBraille = charMode === "braille";
+
+            const targetHeight = isBraille ? (cellRows*4)+((cellRows-1)*horizGap) : cellRows;
+            const targetWidth  = isBraille ? (cellCols*2)+((cellCols-1)*vertGap)  : cellCols;
+
+            canvas.width  = targetWidth;
+            canvas.height = targetHeight;
+            ctx.drawImage(loadedImageObject,0,0,targetWidth,targetHeight);
+
+            const imgData = ctx.getImageData(0,0,targetWidth,targetHeight).data;
+            let graymap=[],colors=[];
+            for(let i=0;i<imgData.length;i+=4){
+                const r=imgData[i],g=imgData[i+1],b=imgData[i+2];
+                colors.push([r,g,b]);
+                graymap.push(r*R_SCALE+g*G_SCALE+b*B_SCALE);
+            }
+
+            if(useAtkinson)
+                graymap=atkinson(graymap,targetWidth,targetHeight,threshold);
+
+            let output="";
+
+            if(isBraille){
+                for(let charY=0;charY<cellRows;charY++){
+                    for(let charX=0;charX<cellCols;charX++){
+                        let character=0x2800;
+                        const offset=(charY*targetWidth*(4+horizGap))+(charX*(2+vertGap));
+                        let avgR=0,avgG=0,avgB=0,count=0;
+                        for(let pip=0;pip<8;pip++){
+                            const px=offset+(Math.floor(pip/2)*targetWidth)+(pip%2);
+                            if(px>=graymap.length) continue;
+                            let shade=graymap[px];
+                            let lt=threshold;
+                            if(useOrdered) lt+=ORDERED_MATRIX[(charX%2)*8+pip]-127;
+                            if(shade>lt) character+=DOT_TO_HEX[pip];
+                            const [r,g,b]=colors[px];
+                            avgR+=r;avgG+=g;avgB+=b;count++;
+                        }
+                        avgR=Math.floor(avgR/count);
+                        avgG=Math.floor(avgG/count);
+                        avgB=Math.floor(avgB/count);
+                        const char=String.fromCharCode(character);
+                        if(useColors){
+                            output+=(useLegacy?nearestLegacyColor(avgR,avgG,avgB):rgbToMinecraftHex(avgR,avgG,avgB))+char;
+                        } else {
+                            output+=char;
+                        }
+                    }
+                    output+="\n";
+                }
+            } else {
+                for(let y=0;y<cellRows;y++){
+                    for(let x=0;x<cellCols;x++){
+                        const px=y*targetWidth+x;
+                        if(px>=graymap.length){ output+=" "; continue; }
+                        let shade=graymap[px];
+                        let lt=threshold;
+                        if(useOrdered) lt+=ORDERED_MATRIX[((x%4)*4+(y%4))%16]-127;
+                        const isOn=shade>lt;
+                        const char=simpleChar(charMode,isOn);
+                        const [r,g,b]=colors[px];
+                        if(useColors){
+                            output+=(useLegacy?nearestLegacyColor(r,g,b):rgbToMinecraftHex(r,g,b))+char;
+                        } else {
+                            output+=char;
+                        }
+                    }
+                    output+="\n";
+                }
+            }
+
+            outputEl.value=output;
+            setStatus(
+                "Готово! " + cellCols + "×" + cellRows + " символов — источник " + targetImgW + "×" + targetImgH + " пкс",
+                "ok"
+            );
+        } catch(e) {
+            console.error(e);
+            setStatus("Критическая ошибка скрипта. Возможно, защита CORS на стороне сайта-донора изображения.", "err");
+        }
+    }, 50);
+};
+
+copyBtn.onclick = () => {
+    const text = outputEl.value;
+    if(!text.trim()){ setStatus("Нечего копировать — сначала выполните конвертацию.", "err"); return; }
+    navigator.clipboard.writeText(text).then(()=>{
+        copyBtn.textContent = "✓ Скопировано!";
+        copyBtn.classList.add("copied");
+        setTimeout(()=>{
+            copyBtn.textContent = "⎘ Копировать";
+            copyBtn.classList.remove("copied");
+        }, 2200);
+    }).catch(()=>{
+        outputEl.select();
+        document.execCommand("copy");
+        setStatus("Скопировано в буфер обмена.", "ok");
+    });
+};
+</script>
+</body>
+</html>
