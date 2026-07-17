@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Tool</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --panel-bg: #1a1a1e;
+            --border-color: #2e2e35;
+            --text-main: #e1e1e6;
+            --text-muted: #a8a8b3;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --success-color: #047857;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .crypto-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            width: 440px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Главные вкладки */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            transition: color 0.2s;
+        }
+
+        .tab.active {
+            color: var(--text-main);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        /* Переключатель типа контента (Файл / Текст) */
+        .sub-tabs {
+            display: flex;
+            background-color: #121214;
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sub-tab {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .sub-tab.active {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Драг-энд-дроп зона */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.02);
+            margin-bottom: 20px;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent-color);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        .drop-zone p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            font-size: 13px;
+            color: var(--text-main);
+            margin-top: 8px;
+            word-break: break-all;
+        }
+
+        /* Текстовая зона */
+        .text-zone {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 100px;
+            background-color: #121214;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 12px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .text-area:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Превью изображения */
+        #previewContainer {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #previewImage {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Поля ввода пароля */
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #121214;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .password-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Кнопки управления */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-action {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-action:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-download {
+            background-color: #2e2e35;
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .btn-download.active {
+            background-color: var(--success-color);
+            color: white;
+            cursor: pointer;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--text-muted);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="crypto-container">
+    <!-- Вкладки верхнего уровня (Режим) -->
+    <div class="tabs">
+        <button class="tab active" id="tabEncrypt" onclick="setMode('encrypt')">Шифрование</button>
+        <button class="tab" id="tabDecrypt" onclick="setMode('decrypt')">Дешифрование</button>
+    </div>
+
+    <!-- Под-вкладки (Тип источника) -->
+    <div class="sub-tabs">
+        <button class="sub-tab active" id="subTabFile" onclick="setContentType('file')">Файл</button>
+        <button class="sub-tab" id="subTabText" onclick="setContentType('text')">Текст</button>
+    </div>
+
+    <!-- Компонент: Работа с файлом -->
+    <div id="fileSection">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <p id="dropText">Перетащите файл сюда или нажмите для выбора</p>
+            <div class="file-info" id="fileInfo"></div>
+            <input type="file" id="fileInput" class="file-input" onchange="handleFileSelect()">
+        </div>
+    </div>
+
+    <!-- Компонент: Работа с текстом -->
+    <div id="textSection" class="text-zone">
+        <textarea id="textInput" class="text-area" placeholder="Введите или вставьте текст..."></textarea>
+    </div>
+
+    <!-- Область превью (только для файлов-изображений) -->
+    <div id="previewContainer">
+        <img id="previewImage" src="" alt="Превью">
+    </div>
+
+    <!-- Ввод пароля -->
+    <div class="input-group">
+        <label for="password">Пароль (ключ):</label>
+        <input type="password" id="password" class="password-input" placeholder="Введите секретный ключ">
+    </div>
+
+    <!-- Две целевые кнопки -->
+    <div class="btn-group">
+        <button class="btn btn-action" id="actionBtn" onclick="processData()">Зашифровать</button>
+        <button class="btn btn-download" id="downloadBtn" onclick="triggerDownload()" disabled>Скачать</button>
+    </div>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    let currentMode = 'encrypt';
+    let contentType = 'file';
+    let processedResult = null;
+    let processedFilename = '';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('tabEncrypt').classList.toggle('active', mode === 'encrypt');
+        document.getElementById('tabDecrypt').classList.toggle('active', mode === 'decrypt');
+        updateActionInterface();
+    }
+
+    function setContentType(type) {
+        contentType = type;
+        document.getElementById('subTabFile').classList.toggle('active', type === 'file');
+        document.getElementById('subTabText').classList.toggle('active', type === 'text');
+        
+        document.getElementById('fileSection').style.display = type === 'file' ? 'block' : 'none';
+        document.getElementById('textSection').style.display = type === 'text' ? 'block' : 'none';
+        
+        const txtInput = document.getElementById('textInput');
+        txtInput.value = '';
+        txtInput.placeholder = currentMode === 'encrypt' ? 'Введите текст для шифрования...' : 'Вставьте зашифрованный код (Base64)...';
+        
+        updateActionInterface();
+    }
+
+    function updateActionInterface() {
+        document.getElementById('actionBtn').innerText = currentMode === 'encrypt' ? 'Зашифровать' : 'Расшифровать';
+        resetPreview();
+        resetDownloadState();
+        document.getElementById('status').innerText = '';
+    }
+
+    // Логика Drag and Drop для файлов
+    const dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(name => {
+        dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+        dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+    });
+    dropZone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length) {
+            document.getElementById('fileInput').files = e.dataTransfer.files;
+            handleFileSelect();
+        }
+    });
+
+    function resetPreview() {
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewImage').src = '';
+    }
+
+    function resetDownloadState() {
+        processedResult = null;
+        processedFilename = '';
+        const dlBtn = document.getElementById('downloadBtn');
+        dlBtn.disabled = true;
+        dlBtn.classList.remove('active');
+    }
+
+    function handleFileSelect() {
+        resetPreview();
+        resetDownloadState();
+        const input = document.getElementById('fileInput');
+        if (!input.files.length) return;
+
+        const file = input.files[0];
+        document.getElementById('dropText').innerText = "Выбранный файл:";
+        document.getElementById('fileInfo').innerText = `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+
+        if (currentMode === 'encrypt' && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Криптографический движок (PBKDF2 + AES-GCM 256-bit)
+    async function deriveKey(password, salt) {
+        const encoder = new TextEncoder();
+        const baseKey = await window.crypto.subtle.importKey(
+            "raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]
+        );
+        return window.crypto.subtle.deriveKey(
+            { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
+            baseKey,
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["encrypt", "decrypt"]
+        );
+    }
+
+    // Единый метод обработки
+    async function processData() {
+        const passwordInput = document.getElementById('password').value;
+        const status = document.getElementById('status');
+        
+        if (!passwordInput) {
+            status.innerText = "❌ Введите пароль!";
+            return;
+        }
+
+        resetPreview();
+        resetDownloadState();
+
+        if (contentType === 'file') {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) { status.innerText = "❌ Выберите файл!"; return; }
+            
+            status.innerText = "⏳ Обработка файла...";
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = async function(e) {
+                try {
+                    const fileBytes = new Uint8Array(e.target.result);
+                    await runCryptoCore(fileBytes, file.name);
+                } catch (err) {
+                    status.innerText = "❌ Ошибка: неверный пароль или поврежденный файл.";
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            
+        } else {
+            const textInput = document.getElementById('textInput').value.trim();
+            if (!textInput) { status.innerText = "❌ Введите текст!"; return; }
+            
+            status.innerText = "⏳ Обработка текста...";
+            try {
+                if (currentMode === 'encrypt') {
+                    const encoder = new TextEncoder();
+                    const textBytes = encoder.encode(textInput);
+                    await runCryptoCore(textBytes, "message.txt");
+                } else {
+                    // Дешифрование текста из Base64 формата
+                    const binaryString = atob(textInput);
+                    const textBytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        textBytes[i] = binaryString.charCodeAt(i);
+                    }
+                    await runCryptoCore(textBytes, "decrypted.txt");
+                }
+            } catch (err) {
+                status.innerText = "❌ Ошибка: некорректный формат зашифрованного текста или неверный пароль.";
+            }
+        }
+    }
+
+    // Ядро криптографии
+    async function runCryptoCore(rawBytes, fallbackName) {
+        const passwordInput = document.getElementById('password').value;
+        const status = document.getElementById('status');
+
+        if (currentMode === 'encrypt') {
+            const salt = window.crypto.getRandomValues(new Uint8Array(16));
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(passwordInput, salt);
+
+            const encryptedContent = await window.crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv }, key, rawBytes
+            );
+
+            const resultArray = new Uint8Array(salt.length + iv.length + encryptedContent.byteLength);
+            resultArray.set(salt, 0);
+            resultArray.set(iv, salt.length);
+            resultArray.set(new Uint8Array(encryptedContent), salt.length + iv.length);
+
+            processedResult = resultArray;
+            processedFilename = contentType === 'file' ? fallbackName + ".enc" : "crypto_text.txt";
+
+            if (contentType === 'text') {
+                // Если шифровали текст, сразу выведем Base64 в поле статуса для удобного копирования
+                let binary = '';
+                for (let i = 0; i < resultArray.length; i++) binary += String.fromCharCode(resultArray[i]);
+                const base64Result = btoa(binary);
+                status.innerHTML = `✅ Успешно зашифровано!<br><br><strong>Зашифрованный текст (Base64):</strong><br><textarea class="text-area" readonly onclick="this.select()">${base64Result}</textarea>`;
+            } else {
+                status.innerText = "✅ Файл успешно зашифрован и готов к скачиванию!";
+            }
+            enableDownloadButton();
+
+        } else {
+            const salt = rawBytes.slice(0, 16);
+            const iv = rawBytes.slice(16, 28);
+            const encryptedData = rawBytes.slice(28);
+
+            const key = await deriveKey(passwordInput, salt);
+            const decryptedContent = await window.crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: iv }, key, encryptedData
+            );
+
+            processedResult = new Uint8Array(decryptedContent);
+
+            if (contentType === 'file') {
+                let originalName = fallbackName.endsWith('.enc') ? fallbackName.slice(0, -4) : 'restored_' + fallbackName;
+                processedFilename = originalName;
+
+                const imgExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+                if (imgExtensions.some(ext => originalName.toLowerCase().endsWith(ext))) {
+                    const blob = new Blob([decryptedContent], { type: "image/" + originalName.split('.').pop() });
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('previewImage').src = e.target.result;
+                        document.getElementById('previewContainer').style.display = 'block';
+                    };
+                    reader.readAsDataURL(blob);
+                }
+                status.innerText = "✅ Файл успешно расшифрован!";
+            } else {
+                processedFilename = "decrypted_text.txt";
+                const decoder = new TextDecoder();
+                const clearText = decoder.decode(decryptedContent);
+                status.innerHTML = `✅ Успешно расшифровано!<br><br><strong>Оригинальный текст:</strong><br><textarea class="text-area" readonly>${clearText}</textarea>`;
+            }
+            enableDownloadButton();
+        }
+    }
+
+    function enableDownloadButton() {
+        const dlBtn = document.getElementById('downloadBtn');
+        dlBtn.disabled = false;
+        dlBtn.classList.add('active');
+    }
+
+    function triggerDownload() {
+        if (!processedResult) return;
+        const blob = new Blob([processedResult], { type: "application/octet-stream" });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = processedFilename;
+        link.click();
+    }
+</script>
+</body>
+</html>
