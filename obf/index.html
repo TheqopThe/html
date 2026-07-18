@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Tool</title>
+    <title>by vibecoding btw</title>
     <style>
         :root {
             --bg-color: #121214;
@@ -147,9 +147,39 @@
 
         .text-area:focus { border-color: var(--accent-color); }
 
-        /* Превью */
-        #previewContainer { display: none; text-align: center; margin-bottom: 20px; }
-        #previewImage { max-width: 100%; max-height: 150px; border-radius: 6px; border: 1px solid var(--border-color); }
+        /* УНИВЕРСАЛЬНОЕ ПРЕВЬЮ */
+        #previewContainer { 
+            display: none; 
+            margin-bottom: 20px; 
+            background: rgba(0, 0, 0, 0.2); 
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        #previewImage { max-width: 100%; max-height: 180px; border-radius: 6px; display: none; margin: 0 auto; }
+        #previewVideo { max-width: 100%; max-height: 180px; border-radius: 6px; display: none; outline: none; margin: 0 auto; }
+        
+        .file-card-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+        .file-card-icon {
+            font-size: 32px;
+            background: rgba(255,255,255,0.05);
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+        .file-card-details { flex: 1; min-width: 0; }
+        .file-card-name { font-size: 14px; font-weight: 500; color: var(--text-main); word-break: break-all; margin-bottom: 3px; }
+        .file-card-meta { font-size: 12px; color: var(--text-muted); }
 
         /* Вводы */
         .input-group { margin-bottom: 25px; }
@@ -261,11 +291,20 @@
     </div>
 
     <div id="textSection" class="text-zone">
-        <textarea id="textInput" class="text-area" placeholder="Введите или вставьте text..."></textarea>
+        <textarea id="textInput" class="text-area" placeholder="Введите или вставьте текст..."></textarea>
     </div>
 
+    <!-- Обновленный контейнер для вывода умного превью -->
     <div id="previewContainer">
         <img id="previewImage" src="" alt="Превью">
+        <video id="previewVideo" controls></video>
+        <div id="previewGenericFile" class="file-card-preview" style="display:none;">
+            <div class="file-card-icon" id="fileIconSymbol">📄</div>
+            <div class="file-card-details">
+                <div class="file-card-name" id="fileNameText">filename.ext</div>
+                <div class="file-card-meta" id="fileSizeText">0 KB</div>
+            </div>
+        </div>
     </div>
 
     <div class="input-group">
@@ -281,11 +320,10 @@
     <div id="status"></div>
 </div>
 
-<!-- Кнопка и меню декора -->
+<!-- Настройки декора -->
 <div class="decor-toggle" onclick="toggleDecorMenu()">⚙️</div>
 <div class="decor-menu" id="decorMenu">
     <h3>Настройки декора</h3>
-    
     <div class="decor-option">
         <label>Тип фона:</label>
         <select class="decor-select" id="bgType" onchange="changeBgType()">
@@ -294,12 +332,10 @@
             <option value="image">Изображение (URL)</option>
         </select>
     </div>
-
     <div class="decor-option" id="urlOpt" style="display:none;">
         <label>Ссылка на обои:</label>
         <input type="text" class="decor-input" id="bgUrl" oninput="applySettings()" placeholder="URL картинки">
     </div>
-
     <div class="decor-option" id="colorOpt">
         <div class="color-pickers">
             <div class="color-picker-wrapper">
@@ -312,12 +348,10 @@
             </div>
         </div>
     </div>
-
     <div class="decor-option">
         <label>Акцентный цвет кнопок:</label>
         <input type="color" id="accentColor" value="#4f46e5" oninput="applySettings()" style="width:100%; height:30px; border:none; background:none; cursor:pointer;">
     </div>
-
     <div class="decor-option">
         <label>Прозрачность панели:</label>
         <input type="range" id="panelOpacity" min="10" max="100" value="90" oninput="applySettings()" style="width:100%;">
@@ -330,7 +364,6 @@
     let processedResult = null;
     let processedFilename = '';
 
-    // Инициализация кастомизации с дефолтным чистым цветом
     window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('bgType').value = localStorage.getItem('bgType') || 'color';
         document.getElementById('bgUrl').value = localStorage.getItem('bgUrl') || '';
@@ -338,15 +371,11 @@
         document.getElementById('bgColor2').value = localStorage.getItem('bgColor2') || '#2a2a35';
         document.getElementById('accentColor').value = localStorage.getItem('accentColor') || '#4f46e5';
         document.getElementById('panelOpacity').value = localStorage.getItem('panelOpacity') || '90';
-
         changeBgType();
         applySettings();
     });
 
-    function toggleDecorMenu() {
-        document.getElementById('decorMenu').classList.toggle('open');
-    }
-
+    function toggleDecorMenu() { document.getElementById('decorMenu').classList.toggle('open'); }
     function changeBgType() {
         const type = document.getElementById('bgType').value;
         document.getElementById('urlOpt').style.display = type === 'image' ? 'block' : 'none';
@@ -354,7 +383,6 @@
         document.getElementById('secondColorWrapper').style.display = type === 'gradient' ? 'block' : 'none';
         applySettings();
     }
-
     function applySettings() {
         const type = document.getElementById('bgType').value;
         const url = document.getElementById('bgUrl').value;
@@ -380,13 +408,99 @@
         } else {
             document.body.style.background = c1;
         }
-
         document.documentElement.style.setProperty('--accent-color', accent);
         document.documentElement.style.setProperty('--panel-bg', `rgba(26, 26, 30, ${opacity / 100})`);
         document.documentElement.style.setProperty('--accent-hover', accent + 'cc'); 
     }
 
-    // Логика криптографии
+    // Красивое форматирование веса файла
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Функция генерации иконок на основе расширения
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return '📦';
+        if (['mp3', 'wav', 'ogg', 'flac'].includes(ext)) return '🎵';
+        if (['txt', 'doc', 'docx', 'pdf', 'rtf', 'odt'].includes(ext)) return '📄';
+        if (['exe', 'msi', 'apk', 'dmg'].includes(ext)) return '⚙️';
+        if (ext === 'enc') return '🔒';
+        return '📁';
+    }
+
+    // Умный рендеринг превью для файлов разного типа
+    function renderPreview(blobOrFile, name) {
+        const container = document.getElementById('previewContainer');
+        const img = document.getElementById('previewImage');
+        const video = document.getElementById('previewVideo');
+        const generic = document.getElementById('previewGenericFile');
+
+        // Сброс видимости всех элементов
+        img.style.display = 'none';
+        video.style.display = 'none';
+        generic.style.display = 'none';
+        img.src = '';
+        video.src = '';
+
+        if (contentType === 'text') {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+        const type = blobOrFile.type || '';
+        const size = blobOrFile.size;
+
+        if (type.startsWith('image/')) {
+            img.src = URL.createObjectURL(blobOrFile);
+            img.style.display = 'block';
+        } else if (type.startsWith('video/')) {
+            video.src = URL.createObjectURL(blobOrFile);
+            video.style.display = 'block';
+        } else {
+            // Для архивов, документов и прочего софта рисуем карточку
+            document.getElementById('fileIconSymbol').innerText = getFileIcon(name);
+            document.getElementById('fileNameText').innerText = name;
+            document.getElementById('fileSizeText').innerText = formatFileSize(size);
+            generic.style.display = 'flex';
+        }
+    }
+
+    function resetPreview() {
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewImage').style.display = 'none';
+        document.getElementById('previewVideo').style.display = 'none';
+        document.getElementById('previewGenericFile').style.display = 'none';
+    }
+
+    function handleFileSelect() {
+        resetPreview();
+        resetDownloadState();
+        const input = document.getElementById('fileInput');
+        if (!input.files.length) return;
+
+        const file = input.files[0];
+        document.getElementById('dropText').innerText = "Выбранный файл:";
+        document.getElementById('fileInfo').innerText = `${file.name} (${formatFileSize(file.size)})`;
+
+        // Генерируем превью только для режима Шифрования (для зашифрованных .enc файлов превью покажется после расшифровки)
+        if (currentMode === 'encrypt') {
+            renderPreview(file, file.name);
+        } else {
+            // В режиме дешифрования просто показываем инфо-карточку защищенного файла
+            document.getElementById('fileIconSymbol').innerText = '🔒';
+            document.getElementById('fileNameText').innerText = file.name;
+            document.getElementById('fileSizeText').innerText = formatFileSize(file.size);
+            document.getElementById('previewGenericFile').style.display = 'flex';
+            document.getElementById('previewContainer').style.display = 'block';
+        }
+    }
+
     function setMode(mode) {
         currentMode = mode;
         document.getElementById('tabEncrypt').classList.toggle('active', mode === 'encrypt');
@@ -429,37 +543,12 @@
         }
     });
 
-    function resetPreview() {
-        document.getElementById('previewContainer').style.display = 'none';
-        document.getElementById('previewImage').src = '';
-    }
-
     function resetDownloadState() {
         processedResult = null;
         processedFilename = '';
         const dlBtn = document.getElementById('downloadBtn');
         dlBtn.disabled = true;
         dlBtn.classList.remove('active');
-    }
-
-    function handleFileSelect() {
-        resetPreview();
-        resetDownloadState();
-        const input = document.getElementById('fileInput');
-        if (!input.files.length) return;
-
-        const file = input.files[0];
-        document.getElementById('dropText').innerText = "Выбранный файл:";
-        document.getElementById('fileInfo').innerText = `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
-
-        if (currentMode === 'encrypt' && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('previewImage').src = e.target.result;
-                document.getElementById('previewContainer').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
     }
 
     async function deriveKey(password, salt) {
@@ -513,6 +602,16 @@
         }
     }
 
+    // Умное определение MIME-типа по имени файла (для плееров)
+    function guessMimeType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const mimeMap = {
+            'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif', 'webp': 'image/webp', 'svg': 'image/svg+xml',
+            'mp4': 'video/mp4', 'webm': 'video/webm', 'ogv': 'video/ogg', 'mov': 'video/quicktime'
+        };
+        return mimeMap[ext] || 'application/octet-stream';
+    }
+
     async function runCryptoCore(rawBytes, fallbackName) {
         const passwordInput = document.getElementById('password').value;
         const status = document.getElementById('status');
@@ -535,7 +634,11 @@
                 let binary = '';
                 for (let i = 0; i < resultArray.length; i++) binary += String.fromCharCode(resultArray[i]);
                 status.innerHTML = `✅ Зашифровано!<br><br><textarea class="text-area" readonly onclick="this.select()">${btoa(binary)}</textarea>`;
-            } else { status.innerText = "✅ Файл готов к скачиванию!"; }
+            } else { 
+                status.innerText = "✅ Файл готов к скачиванию!";
+                // Показываем превью выходного файла-шифра
+                renderPreview(new Blob([resultArray], {type: 'application/octet-stream'}), processedFilename);
+            }
             enableDownloadButton();
         } else {
             const salt = rawBytes.slice(0, 16);
@@ -549,17 +652,13 @@
             if (contentType === 'file') {
                 let originalName = fallbackName.endsWith('.enc') ? fallbackName.slice(0, -4) : 'restored_' + fallbackName;
                 processedFilename = originalName;
-                const imgExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-                if (imgExtensions.some(ext => originalName.toLowerCase().endsWith(ext))) {
-                    const blob = new Blob([decryptedContent], { type: "image/" + originalName.split('.').pop() });
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        document.getElementById('previewImage').src = e.target.result;
-                        document.getElementById('previewContainer').style.display = 'block';
-                    };
-                    reader.readAsDataURL(blob);
-                }
+                
                 status.innerText = "✅ Файл успешно расшифрован!";
+                
+                // Рендерим превью для РАСШИФРОВАННОГО контента
+                const mimeType = guessMimeType(originalName);
+                const decryptedBlob = new Blob([decryptedContent], { type: mimeType });
+                renderPreview(decryptedBlob, originalName);
             } else {
                 processedFilename = "decrypted_text.txt";
                 status.innerHTML = `✅ Расшифровано!<br><br><textarea class="text-area" readonly>${new TextDecoder().decode(decryptedContent)}</textarea>`;
